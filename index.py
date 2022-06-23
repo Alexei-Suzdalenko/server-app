@@ -1,9 +1,15 @@
+global root
 import tkinter as tk
 import web
 import json
 import threading
 import sys
 from class_app import classes 
+from window_app import index
+
+root = tk.Tk()
+index.start_window_app(root)
+
 
 
 p = classes.Person()
