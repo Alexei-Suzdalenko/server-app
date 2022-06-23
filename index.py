@@ -2,7 +2,13 @@ import tkinter as tk
 import web
 import json
 import threading
+import sys
+from class_app import classes 
 
+
+p = classes.Person()
+p.go_action()
+sys.exit()
 
 def worker():
     urls = ('/(.*)', 'hello')
