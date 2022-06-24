@@ -1,62 +1,30 @@
-global root
-import tkinter as tk
 import web
-import json
 import threading
-import sys
-from class_app import classes 
-from window_app import index
-
-root = tk.Tk()
-index.start_window_app(root)
-
-
-
-p = classes.Person()
-p.go_action()
-sys.exit()
+from window_app import index_file, server_file
 
 def worker():
     urls = ('/(.*)', 'hello')
     app = web.application(urls, globals())
     if __name__ == "__main__":
-        print(app)
         app.run()
-        
-
 
 class hello:
     def GET(self, name):
         if not name:
             raise web.seeother('static/index.html')
-        else: 
+        else:
             # pyDict = {'one':1,'two':2}
             # web.header('Content-Type', 'application/json')
             # return json.dumps(pyDict)
-            return "<html>" + 'test function' + "</html>" 
+            return "<html>" + 'test function' + "</html>"
 
 
+t = threading.Thread(target=worker, args=())
+t.daemon = True
+t.start()
 
-window = tk.Tk()
-greeting = tk.Label(text='Server S.A.')
-greeting.pack()
-
-def helloCallBack():
-    t = threading.Thread(target=worker, args=())
-    t.daemon = True
-    t.start()
-    
-        
-  
-    
-
-buttonActivity = tk.Button(text ="Start Server", command = helloCallBack)
-buttonActivity.pack()
-
-helloCallBack()
-
-window.mainloop()
-
+app = index_file.App()
+app.init_app()
 
 # urls = (
 #     '/(.*)', 'hello'
@@ -75,6 +43,3 @@ window.mainloop()
 # 
 # if __name__ == "__main__":
 #     app.run()
-
-
-    
