@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Ventas Graficos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+    
+    <link rel="shortcut icon" href="https://www.gstatic.com/devrel-devsite/prod/v4f31343fb66c313963fb827fd8707d06297a75be3454a20b6b9fa7235969aeb8/developers/images/favicon.png">
+</head>
+<body>    
+    <main>
+      <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+          <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+            <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
+            <span class="fs-4">Listado Gráficos</span>
+          </a>
+    
+          <ul class="nav nav-pills">
+            <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Total Ventas</a></li> 
+            <li class="nav-item"><a href="/api-total-ventas" class="nav-link">api-total-ventas</a></li>
+            <li class="nav-item"><a href="/other" class="nav-link">other</a></li>
+            <li class="nav-item"><a href="/sqlite" class="nav-link">sqlite</a>
+          </ul>
+        </header>
+      </div>
+    </main>
+    
+    <div class="select_data">
+        <select id="monthsSelect"></select>
+        <select id="delegadosSelect"></select>
+        <select id="familiasSelect"></select>
+    </div>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <div id="chart_div3" style="height: 900px;"></div>
+    <div id="chart_div"  style="height: 900px;"></div>
+    <div id="chart_div2" style="height: 900px;"></div>
+    <script>
+        var url = ''
+   
+        google.charts.load('current', {packages: ['corechart', 'line']});
+        function drawBackgroundColor(dataList) {
+              var data = new google.visualization.DataTable();
+              data.addColumn('number', 'X');
+              data.addColumn('number', 'Total Ventas');
+        
+              data.addRows(dataList);
+        
+              var options = {
+                lineWidth: 10,
+                hAxis: {
+                  title: 'Año', format: '0',
+                },
+                vAxis: {
+                  title: 'Ventas', format: '0'
+                },
+                backgroundColor: '#FFFFFF'
+              };
+          
+              var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+              chart.draw(data, options);
+        }
+    
+        google.charts.load('current', {packages: ['corechart', 'bar']});
+        function drawBasic2(r) {
+              var data = google.visualization.arrayToDataTable(r);
+              var options = {
+                title: '', // chartArea: {width: '50%'},
+                hAxis: {
+                  title: 'Ventas', format: '0', //  minValue: 0
+                },
+                vAxis: {
+                  title: 'Año', format: '0'
+                }
+              };
+              var chart2 = new google.visualization.BarChart(document.getElementById('chart_div2'));
+              chart2.draw(data, options);
+        }
+    
+        google.charts.load('current', {packages: ['corechart', 'bar']});
+        function drawBasic3(r) {
+              var data = new google.visualization.DataTable();
+              data.addColumn('number', '');
+              data.addColumn('number', 'Total Ventas');
+              data.addRows(r)
+              var options = {
+                title: '',
+                hAxis: {
+                  title: 'Año',
+                  format: '0',
+                  viewWindow: {}
+                },
+                vAxis: {
+                  title: 'Ventas'
+                }
+              };
+              var chart3 = new google.visualization.ColumnChart(document.getElementById('chart_div3'));
+              chart3.draw(data, options);
+            }
+
+            function putJsonDataToGoogle(r){
+              google.charts.setOnLoadCallback(drawBasic3(r));
+              google.charts.setOnLoadCallback(drawBackgroundColor(r));  r.unshift(['', 'Total Ventas'])
+              google.charts.setOnLoadCallback(drawBasic2(r));
+              
+            }
+
+            var monthsSelect = document.getElementById('monthsSelect')
+            let months = `<option value="0">Todos los meses</option><option value="1">enero</option><option value="2">febrero</option><option value="3">marzo</option><option value="4">abril</option><option value="5">mayo</option><option value="6">junio</option><option value="7">julio	</option><option value="8">agosto</option><option value="9">septiembre</option><option value="10">octubre</option><option value="11">noviembre</option><option value="12">diciembre</option>`
+            monthsSelect.innerHTML = months
+            var delegadosSelect = document.getElementById('delegadosSelect')
+            let delegados =  `<option value="0">Todos los delegados erp</option>`
+            fetch(url + 'api-total-ventas?a=delegados').then(r => r.json()).then(r => {
+              r.forEach(function(item, index){
+                delegados += '<option value="'+item[0]+'">'+item[0]+'</option>'
+              })
+              delegadosSelect.innerHTML = delegados
+            })
+            var familiasSelect = document.getElementById('familiasSelect')
+            let familias =  `<option value="0">Todas las familias</option>`
+            fetch(url + 'api-total-ventas?a=familias').then(r => r.json()).then(r => {
+              r.forEach(function(item, index){
+                familias += '<option value="'+item[0]+'">'+item[1]+'</option>'
+              })
+              familiasSelect.innerHTML = familias
+            })
+
+
+            function start_api_request(x, mes, delegado, familia){
+                  switch(x){
+                    case 'default':
+                      url = 'http://192.168.1.22:8080/api-total-ventas?a=default';
+                      if(mes > 0){
+                        url += '&mes='+mes
+                      }
+                      if(delegado > 0){
+                        url += '&delegado='+delegado
+                      }
+                      if(familia > 0){
+                        url += '&familia='+familia
+                      }
+                      break
+                  }
+                  fetch(url).then(r => r.json()).then(r => {
+                    console.log(r)
+                    putJsonDataToGoogle(r)
+                })
+            }
+            start_api_request('default')
+            
+            monthsSelect.addEventListener('input', function(){
+                recogerSelectValuesAndRequest()
+            })
+            delegadosSelect.addEventListener('input', function(){
+                recogerSelectValuesAndRequest()
+            })
+            familiasSelect.addEventListener('input', function(){
+                recogerSelectValuesAndRequest()
+            })
+
+            function recogerSelectValuesAndRequest(){
+              let mesValue      = monthsSelect.value
+              let delegadoValue = delegadosSelect.value
+              let familiaValue  = familiasSelect.value
+              start_api_request('default', mesValue, delegadoValue, familiaValue)
+              
+            }
+
+    </script>
+   
+    <script src="/static/js/index_page.js"></script>
+    <style>
+        body {font-weight: 900; font-family: 'Roboto', sans-serif;}
+        .pageTitle>h1 { margin-left: 10%; width: 80%; }
+        .select_data {margin-left: 10%;}
+
+    </style>
+    
+</body>
+</html>
