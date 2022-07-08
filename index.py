@@ -6,9 +6,13 @@ from window_app import index_file
 def worker():
     urls = (
         '/',                 'mvc.controllers.index.Index',
-        '/total-ventas',     'mvc.controllers.index.Totalventas',
-        
         '/api-total-ventas', 'mvc.controllers.api.ApiTotalVentas',
+
+        '/delegados',        'mvc.controllers.index.Delegados',   
+        '/api-delegados',    'mvc.controllers.delegados_api.DelegadosApi', 
+        
+        
+        
         '/sqlite',           'mvc.controllers.sqlite.Sqlite',
         '/(.*)',             'mvc.controllers.index.Other',
     )

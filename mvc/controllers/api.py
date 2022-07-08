@@ -1,7 +1,6 @@
 import web
 import simplejson as json
 from datetime import datetime
-from data_base import internal
 import sqlite3
 
 class ApiTotalVentas():
@@ -45,16 +44,20 @@ class ApiTotalVentas():
             listSQL = []
             while(True): 
                 try:                          
-                    mesSql = " AND CAST(SUBSTRING(fecha, 6, 2) AS int) = CAST("+get_input.mes+" AS int) " # str(get_input.mes)
+                    mesSql = " AND CAST(SUBSTRING(fecha, 6, 2) AS int) = CAST("+get_input.mes+" AS int) " 
                 except:
-                    mesSql = ' '    
+                    mesSql = " "    
                 try:
-                    delegadoSql = " AND CAST(delegado__erp AS int) =  CAST("+get_input.delegado+" AS int) ";
+                    delegadoSql = " AND CAST(delegado_id AS int) =  CAST("+get_input.delegado+" AS int) ";
                 except:
-                    delegadoSql = " "                            
+                    delegadoSql = " "   
+                try:
+                    familiaSql = " AND CAST(__familia__id AS int) = CAST("+get_input.familia+" AS int) "
+                except:
+                    familiaSql = " "                                 
                 sql = """SELECT CAST(strftime('%Y', fecha) AS int) AS agno, ROUND(SUM(subtotal), 0) AS subtotal 
                          FROM ventas 
-                         WHERE agno = """ + str(countFirstYear) + mesSql + delegadoSql + """ 
+                         WHERE agno = """ + str(countFirstYear) + mesSql + delegadoSql + familiaSql + """ 
                          """ + """ GROUP BY agno """
                 countFirstYear = countFirstYear + 1
                 if countFirstYear > datetime.now().year: 
@@ -67,7 +70,7 @@ class ApiTotalVentas():
             for x in listSQL:
                 allChildQuery = allChildQuery + x
 
-            print(allChildQuery)
+            # print(allChildQuery)
             myresult = self.requestSqlite(allChildQuery)           
             return myresult
 
@@ -78,7 +81,10 @@ class ApiTotalVentas():
             return myresult
 
         elif get_input.a == 'delegados': 
-            sql = "SELECT DISTINCT delegado__erp FROM ventas ORDER BY delegado__erp ASC"
+            sql = """SELECT DISTINCT ventas.delegado_id, ventas.delegado__erp, delegado.__nombre
+                     FROM ventas 
+                     INNER JOIN delegado ON ventas.delegado_id = delegado.__delegado__id
+                     ORDER BY ventas.delegado__erp ASC"""
             return self.requestSqlite(sql)     
 
         elif get_input.a == 'familias': 

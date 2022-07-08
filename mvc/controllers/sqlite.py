@@ -17,18 +17,31 @@ class Sqlite:
 
         connSQLITE = sqlite3.connect('testDB.db') # timeout=99999000.0
         cursor = connSQLITE.cursor()
-        
+
         try:    
             cursor.execute("CREATE TABLE statistic (id INTEGER PRIMARY KEY, __rows__created REAL)")
             connSQLITE.commit(); cursor.execute("INSERT INTO statistic (id, __rows__created) VALUES (?,?)", (None, 1)); connSQLITE.commit()
             print("table statistic created")
         except: print("table statistic EXISTS")    
 
+        try:
+            cursor.execute("DELETE FROM delegado");  connSQLITE.commit()
+        except:  print("Nothing to deleted delegado")
+        try:
+           cursor.execute("DROP TABLE delegado"); connSQLITE.commit(); print(" DROPPED delegado")
+        except: print("Nothing dropped") 
+        try:    
+            cursor.execute("CREATE TABLE delegado (__erp TEXT, __nombre TEXT, __state TEXT, __delegado__id REAL)")
+            connSQLITE.commit(); print("CREATED delegado")
+        except: print("nothing created delegado")
+
+        # return 1;
+
         allRowsDeleted = False
         try:
             cursor.execute("DELETE FROM ventas")
             connSQLITE.commit(); print(" Deleted all rows "); allRowsDeleted = True 
-        except:  print("Nothing to deleted") 
+        except:  print("Nothing to deleted ventas") 
 
         try:
             if allRowsDeleted == False:
@@ -44,6 +57,22 @@ class Sqlite:
 
         mydb = internal.InternalConnect().start_database_connect()
         mycursor = mydb.cursor()
+
+
+        sql = "SELECT __erp, __nombre, __state, id FROM delegado"
+        mycursor.execute(sql)
+        delegados = mycursor.fetchall() 
+        for delegado in delegados:
+            i = {}
+            i['__erp']          = str(delegado[0] or '')
+            i['__nombre']       = str(delegado[1] or '')
+            i['__state']        = str(delegado[2] or '')
+            i['__delegado__id'] = float(delegado[3] or 0)
+            sql = "INSERT INTO delegado (__erp, __nombre, __state, __delegado__id) VALUES (?,?,?,?)"
+            val = (i['__erp'], i['__nombre'], i['__state'], i['__delegado__id'])
+            cursor.execute(sql, val)
+            connSQLITE.commit()
+
         sql = "SELECT * FROM ventas_delegado_cliente_fecha"
 
         mycursor.execute(sql)

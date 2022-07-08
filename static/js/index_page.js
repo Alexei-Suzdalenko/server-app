@@ -14,3 +14,16 @@ function ejecuteRequest(){
 //         alert('button request')
 //         ejecuteRequest()
 //     })
+
+
+
+var div_loader = document.getElementById('div_loader')
+
+
+function showMeLoaderGif(){
+    div_loader.style.display = 'block'
+}
+
+function hideMeLoaderGif(){
+    div_loader.style.display = 'none'
+}

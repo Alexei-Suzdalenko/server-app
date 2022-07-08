@@ -17,7 +17,7 @@ class App:
         text_label0.grid(row=0, column=0)
         text_label = tk.Label(text="")
         text_label.grid(row=1, column=1)
-        text_label1 = tk.Label(text="Froxa App")
-        text_label1.grid(row=2, column=3)
+        text_label1 = tk.Label(text="http://192.168.1.22:8080")
+        text_label1.grid(row=2, column=2)
 
         windowApp.mainloop()
