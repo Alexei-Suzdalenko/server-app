@@ -11,71 +11,126 @@
     <link rel="shortcut icon" href="https://www.gstatic.com/devrel-devsite/prod/v4f31343fb66c313963fb827fd8707d06297a75be3454a20b6b9fa7235969aeb8/developers/images/favicon.png">
   </head>
 <body>    
-    <main id="navigation">
+    <main>
       <div class="container">
         <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
           <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
             <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
             <span class="fs-4">Listado Gráficos</span>
           </a>
-    
-          <ul class="nav nav-pills" id="navigation">
+          <ul class="nav nav-pills">
             <li class="nav-item"><a href="/" class="nav-link" target="_blank">Total Ventas</a></li> 
             <li class="nav-item"><a href="/delegados" class="nav-link active" target="_blank">Delegados</a></li>
           </ul>
         </header>
       </div>
     </main>
-
+    <div class="select_data">
+      filtar por delegado, año, familia id , clase etc
+      <!-- <select id="yearSelect"><option value="0">Todos los años</option></select> -->
+    </div><br>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <div id="chart_div" style="height: 1500px;"></div>
+    <div id="chart_div" class="chart_div_delegados" style="height: 300px;"></div>
     <script>
         google.charts.load('current', {packages: ['corechart', 'bar']});
-        google.charts.setOnLoadCallback(drawDualX);
+        var arrayYears = [ '', '2017', '2018' ]
+        var arrayData = [
+          ['City', '2010 Population', '2000 Population'],
+          ['New York City, NY', 0, 0],
+          ['Los Angeles, CA', 0, 3694000],
+          ['Chicago, IL', 0, 2896000],
+          ['Houston, TX', 2099000, 0],
+          ['Philadelphia, PA', 20990001, 1]
+      ];
 
         function drawDualX() {
-              var data = google.visualization.arrayToDataTable([
-                ['City', '2017', '2018', '2019', '2020', '2021', '2022', '2023', ],
-                ['New York City, NY', 10000, 8008000, 8008000 , 8008000, 8008000, 8008000, 8008000    ],
-                ['Los Angeles, CA', 3792000, 3694000, 8008000 , 8008000, 8008000, 8008000, 8008000    ],
-                ['Chicago, IL', 2695000, 2896000, 8008000     , 8008000, 8008000, 8008000, 8008000    ],
-                ['Houston, TX', 2099000, 1953000, 8008000     , 8008000, 8008000, 8008000, 8008000    ],
-                ['Philadelphia, PA', 1526000, 1517000, 8008000, 8008000, 8008000, 8008000, 8008000    ],              ]);
-        
-              var materialOptions = {
-                chart: {
-                  title: 'Ventas delegados por año, mes, semana',
-                  subtitle: 'Based on most recent and previous census data'
-                },
-                hAxis: {
-                  title: 'Total Population'
-                },
-                vAxis: {
-                  title: 'City'
-                },
+              var data = google.visualization.arrayToDataTable(arrayData);
+               var materialOptions = {
+                chart: { title: 'Ventas delegados', subtitle: ''  },
+                hAxis: { title: 'Total Population' },
+                vAxis: { title: 'City' },
                 bars: 'horizontal',
-                series: {
-                  0: {axis: '2010'},
-                  1: {axis: '2000'}
-                },
-                axes: {
-                  x: {
-                    2010: {label: '2010 Population (in millions)', side: 'top'},
-                    2000: {label: '2000 Population'}
-                  }
-                }
               };
               var materialChart = new google.charts.Bar(document.getElementById('chart_div'));
               materialChart.draw(data, materialOptions);
             }
+
+        function showMeGrafic(){
+          google.charts.setOnLoadCallback(drawDualX);
+        }    
+    
+   
+
+    
+    fetch('http://192.168.1.22:8080/api-delegados?b=list_years').then(r => r.json()).then(r => {
+    
+      var arrayAgnos = ['']
+      var listadoRealAgnos = null
+      r.forEach(function(item, index){
+         // oprionsgnos += '<option value="'+item[0]+'">'+item[0]+'</option>'
+         arrayAgnos.push(item[0])
+      })
+      listadoRealAgnos = r
+      
+
+       var listadoDelegados = []
+       fetch('http://192.168.1.22:8080/api-delegados?b=delegados').then(r => r.json()).then( lineaDelegadoAgno => {
+          let arryCreatedData = []
+              arryCreatedData.push(arrayAgnos)
+
+          let arrayIdsDelegados = []
+          let arrayNamesDelegados = []
+          lineaDelegadoAgno.forEach(function(item, index){
+              if(!arrayIdsDelegados.includes(item[0])) {
+                arrayIdsDelegados.push(item[0]) 
+                arrayNamesDelegados.push(item[1] + ' ' + item[2])
+              }
+          })
+
+      
+
+          arrayIdsDelegados.forEach(function(idDelegado, index){
+            let lineaDelegadoInfo = []
+            lineaDelegadoInfo.push(arrayNamesDelegados[index])
+
+            listadoRealAgnos.forEach(function(agno, inde){
+
+              let confidenciaEncontrada = false
+              lineaDelegadoAgno.forEach(function(lineaDatosApi, ind){
+                if(idDelegado == lineaDatosApi[0] && agno[0] == lineaDatosApi[3]){
+                  confidenciaEncontrada = true
+                  lineaDelegadoInfo.push(lineaDatosApi[4])
+                  return
+                }
+              })
+              if(!confidenciaEncontrada){
+                lineaDelegadoInfo.push(0)
+              }
+            })
+            arryCreatedData.push(lineaDelegadoInfo)
+          })
+        
+          
+          arrayData = arryCreatedData
+          let lentghListadoDelegados = arrayData.length
+          let heightDivGrafic = lentghListadoDelegados * 150
+          document.getElementById('chart_div').style.height = heightDivGrafic + 'px'
+
+
+          showMeGrafic()
+       })
+    })  
+
+
+    
+    
+
+           
+
+
+
     </script>
-    <style>
-        #chart_div{
-            width: 90%;
-            margin-left: 5%;
-            margin-right: 5%;
-        }
-    </style>
+
 </body>
 </html>    
 

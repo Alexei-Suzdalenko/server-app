@@ -21,13 +21,11 @@ def worker():
         app.run()
 
 
-t = threading.Thread(target=worker, args=())
-t.daemon = True
-t.start()
-
-
+threading.Thread(target=worker).start()
 
 
 app = index_file.App()
 app.init_app()
+
+
 
